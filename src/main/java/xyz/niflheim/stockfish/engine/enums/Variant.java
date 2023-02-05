@@ -14,6 +14,8 @@
  */
 package xyz.niflheim.stockfish.engine.enums;
 
+import java.util.Locale;
+
 /**
  * Variants of Stockfish. See the Stockfish documentation for details on what variant
  * will work best for your CPU.
@@ -25,6 +27,23 @@ public enum Variant {
     DEFAULT,
     BMI2,
     AVX2,
-    POPCNT,
-    MODERN
+    POPCNT;
+
+    public String fileName(final boolean windows, final String version, boolean download) {
+        final StringBuilder builder = new StringBuilder().append("stockfish")
+            .append('_')
+            .append(version)
+            .append('_')
+            .append(windows ? "win" : "linux")
+            .append("_x64");
+        if (this != DEFAULT) {
+            builder.append('_').append(this.name().toLowerCase(Locale.ENGLISH));
+        }
+        if (download) {
+            builder.append(".zip");
+        } else if (windows) {
+            builder.append(".exe");
+        }
+        return builder.toString();
+    }
 }

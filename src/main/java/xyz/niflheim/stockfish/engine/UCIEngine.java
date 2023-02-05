@@ -14,8 +14,8 @@
  */
 package xyz.niflheim.stockfish.engine;
 
+import java.nio.file.Path;
 import xyz.niflheim.stockfish.engine.enums.Option;
-import xyz.niflheim.stockfish.engine.enums.Variant;
 import xyz.niflheim.stockfish.exceptions.StockfishEngineException;
 import xyz.niflheim.stockfish.exceptions.StockfishInitException;
 
@@ -29,11 +29,9 @@ abstract class UCIEngine {
     final Process process;
     final OutputStreamWriter directOut;
 
-    UCIEngine(String path, Variant variant, Option... options) throws StockfishInitException {
+    UCIEngine(Path path, Option... options) throws StockfishInitException {
         try {
-            process = new ProcessBuilder()
-                    .command(getPath(variant, "15.1", path))
-                    .start();
+            process = new ProcessBuilder().command(path.toAbsolutePath().toString()).start();
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             directOut = new OutputStreamWriter(process.getOutputStream());
             output = new BufferedWriter(directOut);
@@ -102,42 +100,5 @@ abstract class UCIEngine {
 
     private void passOption(Option option) {
         sendCommand(option.toString());
-    }
-
-    private String getPath(Variant variant, String version, String override) {
-        StringBuilder path = new StringBuilder(override == null ? "assets/engines/stockfish_" + version + "_x64" : override + "stockfish_" + version + "_x64");
-
-        if (System.getProperty("os.name").toLowerCase().contains("win"))
-            switch (variant) {
-                case DEFAULT:
-                    path.append(".exe");
-                    break;
-                case BMI2:
-                    path.append("_bmi2.exe");
-                    break;
-                case POPCNT:
-                    path.append("_popcnt.exe");
-                    break;
-                default:
-                    throw new StockfishEngineException("Illegal variant provided.");
-            }
-        else
-            switch (variant) {
-                case DEFAULT:
-                    break;
-                case BMI2:
-                    path.append("_bmi2");
-                    break;
-                case AVX2:
-                    path.append("_avx2");
-                    break;
-                case MODERN:
-                    path.append("_modern");
-                    break;
-                default:
-                    throw new StockfishEngineException("Illegal variant provided.");
-            }
-
-        return path.toString();
     }
 }

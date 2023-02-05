@@ -15,6 +15,7 @@
 package xyz.niflheim.stockfish.engine;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -53,13 +54,12 @@ public class StockfishClient {
      * Private constructor for {@code StockfishClient} which is used by Builder to create a new instance
      *
      * @param path    path to folder with Stockfish core (default assets/engine)
-     * @param variant variant of Stockfish core, see {@link xyz.niflheim.stockfish.engine.enums.Variant} enum
      * @param options Stockfish launch options, see {@link xyz.niflheim.stockfish.engine.enums.Option} enum
      * @throws StockfishInitException throws if Stockfish process can not be initialized, starter or bind
      */
-    private StockfishClient(String path, Variant variant, Set<Option> options) throws StockfishInitException {
+    private StockfishClient(Path path, Set<Option> options) throws StockfishInitException {
         this.queryExecutor = Executors.newSingleThreadExecutor();
-        this.engine = new Stockfish(path, variant, options.toArray(new Option[0]));
+        this.engine = new Stockfish(path, options.toArray(new Option[0]));
     }
 
     /**
@@ -127,17 +127,7 @@ public class StockfishClient {
      */
     public static class Builder {
         private Set<Option> options = new HashSet<>();
-        private Variant variant = Variant.DEFAULT;
-        private String path = null;
-
-        /**
-         * @param v variant of Stockfish core, see {@link xyz.niflheim.stockfish.engine.enums.Variant} enum
-         * @return Builder to continue creating StockfishClient
-         */
-        public final Builder setVariant(Variant v) {
-            variant = v;
-            return this;
-        }
+        private Path path = null;
 
         /**
          * @param o     Stockfish launch options, see {@link xyz.niflheim.stockfish.engine.enums.Option} enum
@@ -153,7 +143,7 @@ public class StockfishClient {
          * @param path path to folder with Stockfish core (default assets/engine/)
          * @return Builder to continue creating StockfishClient
          */
-        public final Builder setPath(String path) {
+        public final Builder setPath(Path path) {
             this.path = path;
             return this;
         }
@@ -163,7 +153,7 @@ public class StockfishClient {
          * @throws StockfishInitException throws if Stockfish process can not be initialized, starter or bind
          */
         public final StockfishClient build() throws StockfishInitException {
-            return new StockfishClient(path, variant, options);
+            return new StockfishClient(path, options);
         }
     }
 }

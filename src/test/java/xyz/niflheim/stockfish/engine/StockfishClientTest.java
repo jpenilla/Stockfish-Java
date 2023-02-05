@@ -1,5 +1,6 @@
 package xyz.niflheim.stockfish.engine;
 
+import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Disabled;
@@ -43,7 +44,7 @@ class StockfishClientTest {
                 StockfishClient client = new StockfishClient.Builder()
                         //.setInstances(instanceNumber)
                         .setOption(Option.Threads, 4)
-                        .setVariant(Variant.BMI2)
+                        //.setVariant(Variant.BMI2) // todo path
                         .build();
                 try {
                     Thread.sleep(100);
@@ -57,9 +58,9 @@ class StockfishClientTest {
                 instanceNumber = 2;
                 client = new StockfishClient.Builder()
                         //.setInstances(instanceNumber)
-                        .setPath("assets/engines/")
+                        //.setPath("assets/engines/")
                         .setOption(Option.Threads, 2)
-                        .setVariant(Variant.DEFAULT)
+                        //.setVariant(Variant.DEFAULT) // todo path
                         .build();
                 assertEquals(instanceNumber, getProcessNumber());
                 client.close();
@@ -68,7 +69,7 @@ class StockfishClientTest {
                 client = new StockfishClient.Builder()
                         //.setInstances(instanceNumber)
                         .setOption(Option.Threads, 2)
-                        .setVariant(Variant.DEFAULT)
+                        //.setVariant(Variant.DEFAULT) // todo path
                         .build();
                 assertEquals(instanceNumber, getProcessNumber());
                 client.close();
@@ -92,9 +93,9 @@ class StockfishClientTest {
                 int instanceNumber = 4;
                 StockfishClient client = new StockfishClient.Builder()
                         //.setInstances(instanceNumber)
-                        .setPath("assets/engines/")
+                        //.setPath("assets/engines/")
                         .setOption(Option.Threads, 2)
-                        .setVariant(Variant.DEFAULT)
+                        //.setVariant(Variant.DEFAULT) // todo path
                         .build();
                 assertEquals(instanceNumber, getProcessNumber());
                 killStockfishProcess();
@@ -111,7 +112,13 @@ class StockfishClientTest {
     void submit() {
         StockfishClient client = null;
         try {
-            client = new StockfishClient.Builder().build();
+            client = new StockfishClient.Builder()
+                .setPath(new File("assets/engines/" + Variant.DEFAULT.fileName(
+                    System.getProperty("os.name").toLowerCase().contains("win"),
+                    "15.1",
+                    false
+                )).toPath())
+                .build();
             Query query = new Query.Builder(QueryType.Make_Move, START_FEN).setMove("a2a4").build();
             BlockingQueue<Throwable> exceptions = new ArrayBlockingQueue<>(4);
             Consumer<String> move = l -> {

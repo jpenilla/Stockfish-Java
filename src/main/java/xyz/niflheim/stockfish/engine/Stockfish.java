@@ -15,16 +15,16 @@
 package xyz.niflheim.stockfish.engine;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import xyz.niflheim.stockfish.engine.enums.Option;
 import xyz.niflheim.stockfish.engine.enums.Query;
-import xyz.niflheim.stockfish.engine.enums.Variant;
 import xyz.niflheim.stockfish.exceptions.StockfishInitException;
 
 class Stockfish extends UCIEngine {
 
-    Stockfish(String path, Variant variant, Option... options) throws StockfishInitException {
-        super(path, variant, options);
+    Stockfish(Path path, Option... options) throws StockfishInitException {
+        super(path, options);
     }
 
     String makeMove(Query query) {

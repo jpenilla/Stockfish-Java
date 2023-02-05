@@ -34,7 +34,13 @@ class StockfishTest {
     @BeforeEach
     void setUp() {
         try {
-            stockfish = new Stockfish(null, Variant.DEFAULT);
+            stockfish = new Stockfish(
+                new File("assets/engines/" + Variant.DEFAULT.fileName(
+                    System.getProperty("os.name").toLowerCase().contains("win"),
+                    "15.1",
+                    false
+                )).toPath()
+            );
         } catch (StockfishInitException e) {
             log.error("error while create Stockfish client: ", e);
             fail(e);
