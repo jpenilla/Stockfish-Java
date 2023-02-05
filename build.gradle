@@ -1,40 +1,25 @@
-/* Stockfish Java's build.gradle */
-
 plugins {
     id 'application'
-    id 'idea'
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
 }
 
-group 'Niflheim'
-version = new Version(major: 3, minor: 0, revision: 0, build: 0)
+group 'xyz.niflheim'
+version = "4.0.0-SNAPSHOT"
 mainClassName = 'xyz.niflheim.stockfish.StockfishTester'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-def client_version = version.toString()
-def stockfish_version = "10"
-
-repositories {
-    jcenter()
-    mavenCentral()
-}
-repositories {
-    mavenCentral()
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    withSourcesJar()
 }
 
-class Version {
-    String major, minor, revision, build
-
-    String toString() {
-        "${major}.${minor}.${revision}_${build}"
-    }
+repositories {
+    mavenCentral()
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.release.set(17)
 }
 
 test {
@@ -42,32 +27,23 @@ test {
 }
 
 dependencies {
-    compile 'log4j:log4j:1.2.17'
-    compile 'commons-logging:commons-logging:1.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    compileOnlyApi 'org.apache.logging.log4j:log4j-api:2.19.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    testImplementation 'org.apache.logging.log4j:log4j-api:2.19.0'
+    testImplementation 'org.apache.logging.log4j:log4j-core:2.19.0'
+    testRuntimeOnly("org.slf4j:slf4j-jdk14:2.0.6")
 }
 
 jar {
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest {
         attributes 'Main-Class': 'xyz.niflheim.stockfish.StockfishTester'
     }
 }
 
 publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/senyast4745/Stockfish-Java")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
     publications {
-        gpr(MavenPublication) {
+        maven(MavenPublication) {
             from(components.java)
         }
     }

@@ -15,7 +15,7 @@ public class ProcessManager {
      * @throws IOException when can not execute Unix command
      */
     public static long getProcessNumber() throws IOException {
-        return getProcessNumber("stockfish_10");
+        return getProcessNumber("stockfish_15.1");
     }
 
 
@@ -40,7 +40,7 @@ public class ProcessManager {
     public static void killStockfishProcess() throws IOException {
         Process p = Runtime.getRuntime().exec("ps -few");
         BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        List<String> pids = input.lines().filter(l -> l.contains("stockfish_10")).collect(Collectors.toList());
+        List<String> pids = input.lines().filter(l -> l.contains("stockfish_15.1")).collect(Collectors.toList());
         String pid = pids.get(0).split("\\s+")[1];
         Runtime.getRuntime().exec("kill " + pid);
         input.close();

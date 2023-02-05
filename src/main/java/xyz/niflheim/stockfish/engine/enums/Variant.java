@@ -15,26 +15,16 @@
 package xyz.niflheim.stockfish.engine.enums;
 
 /**
- * Variant of Stockfish process.
+ * Variants of Stockfish. See the Stockfish documentation for details on what variant
+ * will work best for your CPU.
  *
- * @author Niflheim
- * @since 1.0
+ * <p>As of writing, the BMI2 variant will be best for Intel 4th gen+ (ie i7 4770k and newer)
+ * and AMD Zen 3+ (ie 5600X or newer). AVX2 will be best for AMD Zen pre-Zen 3.
  */
 public enum Variant {
-    /**
-     * Works on Unix and Windows machines
-     */
     DEFAULT,
-    /**
-     * Works on Unix and Windows machines
-     */
     BMI2,
-    /**
-     * Works on Windows machines
-     */
+    AVX2,
     POPCNT,
-    /**
-     * Works on Unix machines
-     */
     MODERN
 }

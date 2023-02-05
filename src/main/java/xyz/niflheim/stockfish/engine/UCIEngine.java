@@ -27,12 +27,16 @@ abstract class UCIEngine {
     final BufferedReader input;
     final BufferedWriter output;
     final Process process;
+    final OutputStreamWriter directOut;
 
     UCIEngine(String path, Variant variant, Option... options) throws StockfishInitException {
         try {
-            process = Runtime.getRuntime().exec(getPath(variant, path));
+            process = new ProcessBuilder()
+                    .command(getPath(variant, "15.1", path))
+                    .start();
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            output = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            directOut = new OutputStreamWriter(process.getOutputStream());
+            output = new BufferedWriter(directOut);
 
             for (Option option : options)
                 passOption(option);
@@ -46,8 +50,17 @@ abstract class UCIEngine {
         readResponse("readyok");
     }
 
+    void uciNewGame() {
+        sendCommand("ucinewgame");
+        waitForReady();
+    }
+
     void sendCommand(String command) {
         try {
+            if ("quit".equals(command)) {
+                directOut.write(command + "\n");
+                return;
+            }
             output.write(command + "\n");
             output.flush();
         } catch (IOException e) {
@@ -91,8 +104,8 @@ abstract class UCIEngine {
         sendCommand(option.toString());
     }
 
-    private String getPath(Variant variant, String override) {
-        StringBuilder path = new StringBuilder(override == null ? "assets/engines/stockfish_10_x64" : override + "stockfish_10_x64");
+    private String getPath(Variant variant, String version, String override) {
+        StringBuilder path = new StringBuilder(override == null ? "assets/engines/stockfish_" + version + "_x64" : override + "stockfish_" + version + "_x64");
 
         if (System.getProperty("os.name").toLowerCase().contains("win"))
             switch (variant) {
@@ -114,6 +127,9 @@ abstract class UCIEngine {
                     break;
                 case BMI2:
                     path.append("_bmi2");
+                    break;
+                case AVX2:
+                    path.append("_avx2");
                     break;
                 case MODERN:
                     path.append("_modern");

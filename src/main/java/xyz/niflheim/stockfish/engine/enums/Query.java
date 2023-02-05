@@ -103,7 +103,7 @@ public class Query {
         private static final String END_REGEX = "$";
         private static final String FEN_REGEX = "(([rnbqkp1-8PRNBQK]{1,8}/){7}[rnbqkp1-8PRNBQK]{1,8})" +
                 "(\\s)([wb])(\\s[-kqKQ]{1,4}\\s)((-)|[a-h][1-8])(\\s)([0-9]+)(\\s)([0-9]+)";
-        private static final String MOVE_REGEX = "([a-h][1-8]){2}";
+        private static final String MOVE_REGEX = "([a-h][1-8]){2}[qnrb]?";
 
         private static final Pattern fenPattern = Pattern.compile(START_REGEX + FEN_REGEX + END_REGEX);
         private static final Pattern movePattern = Pattern.compile(START_REGEX + MOVE_REGEX + END_REGEX);

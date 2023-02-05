@@ -14,13 +14,12 @@
  */
 package xyz.niflheim.stockfish.engine;
 
+import java.io.IOException;
+import java.util.List;
 import xyz.niflheim.stockfish.engine.enums.Option;
 import xyz.niflheim.stockfish.engine.enums.Query;
 import xyz.niflheim.stockfish.engine.enums.Variant;
 import xyz.niflheim.stockfish.exceptions.StockfishInitException;
-
-import java.io.IOException;
-import java.util.List;
 
 class Stockfish extends UCIEngine {
 
@@ -55,11 +54,13 @@ class Stockfish extends UCIEngine {
 
         StringBuilder command = new StringBuilder("go ");
 
-        if (query.getDepth() >= 0)
+        if (query.getDepth() >= 0) {
             command.append("depth ").append(query.getDepth()).append(" ");
+        }
 
-        if (query.getMovetime() >= 0)
+        if (query.getMovetime() >= 0) {
             command.append("movetime ").append(query.getMovetime());
+        }
 
         waitForReady();
         sendCommand(command.toString());
@@ -77,9 +78,11 @@ class Stockfish extends UCIEngine {
         StringBuilder legal = new StringBuilder();
         List<String> response = readResponse("Nodes");
 
-        for (String line : response)
-            if (!line.isEmpty() && !line.contains("Nodes") && line.contains(":"))
+        for (String line : response) {
+            if (!line.contains("Nodes") && line.contains(":")) {
                 legal.append(line.split(":")[0]).append(" ");
+            }
+        }
 
         return legal.toString();
     }
@@ -89,8 +92,8 @@ class Stockfish extends UCIEngine {
             sendCommand("quit");
         } finally {
             process.destroy();
-            input.close();
-            output.close();
+            //input.close();
+            //output.close();
         }
     }
 
