@@ -17,13 +17,14 @@ package xyz.niflheim.stockfish.engine;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import xyz.niflheim.stockfish.engine.enums.Option;
 import xyz.niflheim.stockfish.engine.enums.Query;
 import xyz.niflheim.stockfish.exceptions.StockfishInitException;
 
 class Stockfish extends UCIEngine {
 
-    Stockfish(Path path, Option... options) throws StockfishInitException {
+    Stockfish(Path path, Map<Option, String> options) throws StockfishInitException {
         super(path, options);
     }
 

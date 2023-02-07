@@ -31,3 +31,7 @@ Follow these instructions to set up your environment.
 
 Once you have made your changes, commit and push them. Then click *Create a Pull Request* and wait for it to be added
 to the repo!
+
+# UCI Specification
+
+See https://www.shredderchess.com/download.html for a download of the UCI spec

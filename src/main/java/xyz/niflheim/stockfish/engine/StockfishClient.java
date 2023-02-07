@@ -16,8 +16,8 @@ package xyz.niflheim.stockfish.engine;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +28,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.niflheim.stockfish.engine.enums.Option;
 import xyz.niflheim.stockfish.engine.enums.Query;
-import xyz.niflheim.stockfish.engine.enums.Variant;
 import xyz.niflheim.stockfish.exceptions.StockfishEngineException;
 import xyz.niflheim.stockfish.exceptions.StockfishInitException;
 
@@ -57,9 +56,9 @@ public class StockfishClient {
      * @param options Stockfish launch options, see {@link xyz.niflheim.stockfish.engine.enums.Option} enum
      * @throws StockfishInitException throws if Stockfish process can not be initialized, starter or bind
      */
-    private StockfishClient(Path path, Set<Option> options) throws StockfishInitException {
+    private StockfishClient(Path path, Map<Option, String> options) throws StockfishInitException {
         this.queryExecutor = Executors.newSingleThreadExecutor();
-        this.engine = new Stockfish(path, options.toArray(new Option[0]));
+        this.engine = new Stockfish(path, options);
     }
 
     /**
@@ -126,7 +125,7 @@ public class StockfishClient {
      * @see <a href="https://en.wikipedia.org/wiki/Builder_pattern">Wiki <b>Builder</b> pattern.</a>
      */
     public static class Builder {
-        private Set<Option> options = new HashSet<>();
+        private final Map<Option, String> options = new HashMap<>();
         private Path path = null;
 
         /**
@@ -134,8 +133,8 @@ public class StockfishClient {
          * @param value value of option
          * @return Builder to continue creating StockfishClient
          */
-        public final Builder setOption(Option o, long value) {
-            options.add(o.setValue(value));
+        public final Builder setOption(Option o, Object value) {
+            options.put(o, value.toString());
             return this;
         }
 

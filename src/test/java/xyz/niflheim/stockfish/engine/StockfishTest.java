@@ -1,6 +1,7 @@
 package xyz.niflheim.stockfish.engine;
 
 import java.nio.file.Files;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -39,7 +40,8 @@ class StockfishTest {
                     System.getProperty("os.name").toLowerCase().contains("win"),
                     "15.1",
                     false
-                )).toPath()
+                )).toPath(),
+                Map.of()
             );
         } catch (StockfishInitException e) {
             log.error("error while create Stockfish client: ", e);

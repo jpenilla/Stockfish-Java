@@ -22,6 +22,7 @@ import xyz.niflheim.stockfish.exceptions.StockfishInitException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 abstract class UCIEngine {
     final BufferedReader input;
@@ -29,15 +30,16 @@ abstract class UCIEngine {
     final Process process;
     final OutputStreamWriter directOut;
 
-    UCIEngine(Path path, Option... options) throws StockfishInitException {
+    UCIEngine(Path path, Map<Option, String> options) throws StockfishInitException {
         try {
             process = new ProcessBuilder().command(path.toAbsolutePath().toString()).start();
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             directOut = new OutputStreamWriter(process.getOutputStream());
             output = new BufferedWriter(directOut);
 
-            for (Option option : options)
-                passOption(option);
+            for (Map.Entry<Option, String> option : options.entrySet()) {
+                passOption(option.getKey(), option.getValue());
+            }
         } catch (IOException e) {
             throw new StockfishInitException("Unable to start and bind Stockfish process: ", e);
         }
@@ -98,7 +100,7 @@ abstract class UCIEngine {
         }
     }
 
-    private void passOption(Option option) {
-        sendCommand(option.toString());
+    private void passOption(Option option, String value) {
+        sendCommand("setoption name " + option.optionString + " value " + value);
     }
 }

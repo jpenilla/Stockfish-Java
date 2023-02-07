@@ -72,33 +72,13 @@ public enum Option {
      * Tells the engine to use nodes searched instead of wall time to account for elapsed time.
      * Useful for engine testing.
      */
-    Nodestime("nodestime");
+    Nodestime("nodestime"),
+    UCI_LIMITSTRENGTH("UCI_LimitStrength"),
+    UCI_ELO("UCI_Elo");
 
-    private String optionString;
-    private long value;
+    public final String optionString;
 
     Option(String option) {
-        optionString = option;
-    }
-
-    /**
-     * Setter for value to Stockfish option.
-     *
-     * @param value option value
-     * @return option for Stockfish
-     */
-    public Option setValue(long value) {
-        this.value = value;
-        return this;
-    }
-
-    /**
-     * Generate UCI command string to set option to Stockfish.
-     *
-     * @return UCI command to Stockfish
-     */
-    @Override
-    public String toString() {
-        return "setoption name " + optionString + " value " + value;
+        this.optionString = option;
     }
 }
