@@ -97,7 +97,7 @@ abstract class UCIEngine {
             if (isPresent) {
                 return lines;
             } else {
-                throw new StockfishEngineException("Can not find expected line: '" + expected + "' in output: " + lines);
+                throw new StockfishEngineException("Can not find expected line: '" + expected + "' in output:\n  " + String.join("\n  ", lines));
             }
         } catch (IOException e) {
             throw new StockfishEngineException(e);
