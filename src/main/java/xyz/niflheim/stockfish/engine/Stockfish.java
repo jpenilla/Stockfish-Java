@@ -92,7 +92,9 @@ class Stockfish extends UCIEngine {
         try {
             sendCommand("quit");
         } finally {
-            process.destroy();
+            if (process.isAlive()) {
+                process.destroy();
+            }
             //input.close();
             //output.close();
         }

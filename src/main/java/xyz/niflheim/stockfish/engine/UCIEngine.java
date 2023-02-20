@@ -32,16 +32,20 @@ abstract class UCIEngine {
 
     UCIEngine(Path path, Map<Option, String> options) throws StockfishInitException {
         try {
-            process = new ProcessBuilder().command(path.toAbsolutePath().toString()).start();
+            process = new ProcessBuilder()
+                .command(path.toAbsolutePath().toString())
+                .redirectErrorStream(true)
+                .start();
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             directOut = new OutputStreamWriter(process.getOutputStream());
             output = new BufferedWriter(directOut);
 
+            waitForReady();
             for (Map.Entry<Option, String> option : options.entrySet()) {
                 passOption(option.getKey(), option.getValue());
             }
-        } catch (IOException e) {
-            throw new StockfishInitException("Unable to start and bind Stockfish process: ", e);
+        } catch (IOException | StockfishEngineException e) {
+            throw new StockfishInitException("Unable to start and bind Stockfish process.", e);
         }
     }
 
@@ -93,7 +97,7 @@ abstract class UCIEngine {
             if (isPresent) {
                 return lines;
             } else {
-                throw new StockfishEngineException("Can not find expected line: " + expected);
+                throw new StockfishEngineException("Can not find expected line: '" + expected + "' in output: " + lines);
             }
         } catch (IOException e) {
             throw new StockfishEngineException(e);
