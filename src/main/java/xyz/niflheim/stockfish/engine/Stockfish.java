@@ -51,7 +51,11 @@ class Stockfish extends UCIEngine {
         }
 
         waitForReady();
-        sendCommand("position fen " + query.getFen());
+        String cmd = "position fen " + query.getFen();
+        if (query.getMove() != null && !query.getMove().isBlank()) {
+            cmd = cmd + " moves " + query.getMove();
+        }
+        sendCommand(cmd);
 
         StringBuilder command = new StringBuilder("go ");
 
@@ -71,7 +75,11 @@ class Stockfish extends UCIEngine {
 
     String getLegalMoves(Query query) {
         waitForReady();
-        sendCommand("position fen " + query.getFen());
+        String cmd = "position fen " + query.getFen();
+        if (query.getMove() != null && !query.getMove().isBlank()) {
+            cmd = cmd + " moves " + query.getMove();
+        }
+        sendCommand(cmd);
 
         waitForReady();
         sendCommand("go perft 1");

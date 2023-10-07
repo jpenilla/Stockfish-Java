@@ -130,7 +130,7 @@ public class Query {
          * @throws IllegalArgumentException if the incoming line is not a chess move
          */
         public Builder setMove(String move) throws IllegalArgumentException {
-            if (move == null || !movePattern.matcher(move).matches()) {
+            if (move == null) {
                 throw new IllegalArgumentException("Incorrect Move in Query: " + move);
             }
             this.move = move;
