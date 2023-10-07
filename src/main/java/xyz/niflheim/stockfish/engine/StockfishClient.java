@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.niflheim.stockfish.engine.enums.Option;
-import xyz.niflheim.stockfish.engine.enums.Query;
 import xyz.niflheim.stockfish.exceptions.StockfishEngineException;
 import xyz.niflheim.stockfish.exceptions.StockfishInitException;
 
@@ -66,14 +65,21 @@ public class StockfishClient {
      *
      * @param query query to execute in Stockfish
      * @return future
-     * @see xyz.niflheim.stockfish.engine.enums.Query
+     * @see Query
      */
-    public CompletableFuture<String> submit(final Query query) {
-        return CompletableFuture.supplyAsync(() -> switch (query.getType()) {
-            case Best_Move -> this.engine.getBestMove(query);
-            case Make_Move -> this.engine.makeMove(query);
-            case Legal_Moves -> this.engine.getLegalMoves(query);
-            case Checkers -> this.engine.getCheckers(query);
+    @SuppressWarnings("unchecked")
+    public <R> CompletableFuture<R> submit(final Query<R> query) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (query.getType() == QueryTypes.BEST_MOVE) {
+                return (R) this.engine.getBestMove(query);
+            } else if (query.getType() == QueryTypes.MAKE_MOVES) {
+                return (R) this.engine.makeMoves(query);
+            } else if (query.getType() == QueryTypes.LEGAL_MOVES) {
+                return (R) this.engine.getLegalMoves(query);
+            } else if (query.getType() == QueryTypes.CHECKERS) {
+                return (R) this.engine.getCheckers(query);
+            }
+            throw new IllegalArgumentException(query.toString());
         }, this.queryExecutor);
     }
 

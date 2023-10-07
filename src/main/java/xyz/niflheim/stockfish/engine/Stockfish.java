@@ -16,10 +16,12 @@ package xyz.niflheim.stockfish.engine;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import xyz.niflheim.stockfish.engine.enums.Option;
-import xyz.niflheim.stockfish.engine.enums.Query;
 import xyz.niflheim.stockfish.exceptions.StockfishInitException;
 
 class Stockfish extends UCIEngine {
@@ -28,13 +30,13 @@ class Stockfish extends UCIEngine {
         super(path, options);
     }
 
-    String makeMove(Query query) {
+    String makeMoves(Query<?> query) {
         waitForReady();
-        sendCommand("position fen " + query.getFen() + " moves " + query.getMove());
+        sendCommand("position fen " + query.getFen() + " moves " + query.getMoves());
         return getFen();
     }
 
-    String getCheckers(Query query) {
+    String getCheckers(Query<?> query) {
         waitForReady();
         sendCommand("position fen " + query.getFen());
 
@@ -44,7 +46,7 @@ class Stockfish extends UCIEngine {
         return readLine("Checkers: ").substring(10);
     }
 
-    String getBestMove(Query query) {
+    String getBestMove(Query<?> query) {
         if (query.getDifficulty() >= 0) {
             waitForReady();
             sendCommand("setoption name Skill Level value " + query.getDifficulty());
@@ -52,8 +54,8 @@ class Stockfish extends UCIEngine {
 
         waitForReady();
         String cmd = "position fen " + query.getFen();
-        if (query.getMove() != null && !query.getMove().isBlank()) {
-            cmd = cmd + " moves " + query.getMove();
+        if (query.getMoves() != null && !query.getMoves().isBlank()) {
+            cmd = cmd + " moves " + query.getMoves();
         }
         sendCommand(cmd);
 
@@ -73,27 +75,27 @@ class Stockfish extends UCIEngine {
         return readLine("bestmove").substring(9).split("\\s+")[0];
     }
 
-    String getLegalMoves(Query query) {
+    Set<String> getLegalMoves(Query<?> query) {
         waitForReady();
         String cmd = "position fen " + query.getFen();
-        if (query.getMove() != null && !query.getMove().isBlank()) {
-            cmd = cmd + " moves " + query.getMove();
+        if (query.getMoves() != null && !query.getMoves().isBlank()) {
+            cmd = cmd + " moves " + query.getMoves();
         }
         sendCommand(cmd);
 
         waitForReady();
         sendCommand("go perft 1");
 
-        StringBuilder legal = new StringBuilder();
+        Set<String> legal = new HashSet<>();
         List<String> response = readResponse("Nodes");
 
         for (String line : response) {
             if (!line.contains("Nodes") && line.contains(":")) {
-                legal.append(line.split(":")[0]).append(" ");
+                legal.add(line.split(":")[0]);
             }
         }
 
-        return legal.toString();
+        return Set.copyOf(legal);
     }
 
     void close() throws IOException {

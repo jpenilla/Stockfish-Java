@@ -2,6 +2,7 @@ package xyz.niflheim.stockfish.engine;
 
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -9,8 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import xyz.niflheim.stockfish.engine.enums.Query;
-import xyz.niflheim.stockfish.engine.enums.QueryType;
 import xyz.niflheim.stockfish.engine.enums.Variant;
 import xyz.niflheim.stockfish.exceptions.StockfishEngineException;
 import xyz.niflheim.stockfish.exceptions.StockfishInitException;
@@ -171,24 +170,24 @@ class StockfishTest {
     @Test
     void makeMove() {
         try {
-            Query makeMove = new Query.Builder(QueryType.Make_Move, START_FEN)
-                    .setMove("a2a4").setMovetime(1000)
+            Query<String> makeMove = new Query.Builder<>(QueryTypes.MAKE_MOVES, START_FEN)
+                    .setMoves("a2a4").setMovetime(1000)
                     .build();
-            log.info("Move: " + stockfish.makeMove(makeMove));
-            final Matcher matcher = fenPattern.matcher(stockfish.makeMove(makeMove));
+            log.info("Move: " + stockfish.makeMoves(makeMove));
+            final Matcher matcher = fenPattern.matcher(stockfish.makeMoves(makeMove));
             assertTrue(matcher.matches());
-            makeMove = new Query.Builder(QueryType.Make_Move, START_FEN)
-                    .setMove("a2h6")
+            makeMove = new Query.Builder<>(QueryTypes.MAKE_MOVES, START_FEN)
+                    .setMoves("a2h6")
                     .build();
-            assertEquals(START_FEN, stockfish.makeMove(makeMove));
-            makeMove = new Query.Builder(QueryType.Make_Move, START_FEN)
+            assertEquals(START_FEN, stockfish.makeMoves(makeMove));
+            makeMove = new Query.Builder<>(QueryTypes.MAKE_MOVES, START_FEN)
                     .build();
-            assertEquals(START_FEN, stockfish.makeMove(makeMove));
-            assertEquals(START_FEN, stockfish.makeMove(makeMove));
-            Query makeErrorMove = new Query.Builder(QueryType.Make_Move, "8/8/8/8/8/8/8/8 b KQkq - 0 1")
+            assertEquals(START_FEN, stockfish.makeMoves(makeMove));
+            assertEquals(START_FEN, stockfish.makeMoves(makeMove));
+            Query<String> makeErrorMove = new Query.Builder<>(QueryTypes.MAKE_MOVES, "8/8/8/8/8/8/8/8 b KQkq - 0 1")
                     .build();
 
-            assertThrows(StockfishEngineException.class, () -> stockfish.makeMove(makeErrorMove));
+            assertThrows(StockfishEngineException.class, () -> stockfish.makeMoves(makeErrorMove));
             assertThrows(StockfishEngineException.class, () -> stockfish.readLine(""));
             assertFalse(stockfish.process.isAlive());
             assertEquals(139, stockfish.process.exitValue());
@@ -204,10 +203,10 @@ class StockfishTest {
 //            Query checkersQuery = new Query.Builder(QueryType.Checkers, START_FEN).build();
 //            assertEquals("", stockfish.getCheckers(checkersQuery));
 
-            Query makeErrorMove = new Query.Builder(QueryType.Make_Move, "8/8/8/8/8/8/8/8 b KQkq - 0 1")
+            Query<String> makeErrorMove = new Query.Builder<>(QueryTypes.MAKE_MOVES, "8/8/8/8/8/8/8/8 b KQkq - 0 1")
                     .build();
 
-            assertThrows(StockfishEngineException.class, () -> stockfish.makeMove(makeErrorMove));
+            assertThrows(StockfishEngineException.class, () -> stockfish.makeMoves(makeErrorMove));
             assertThrows(StockfishEngineException.class, () -> stockfish.readLine(""));
             assertFalse(stockfish.process.isAlive());
             assertEquals(139, stockfish.process.exitValue());
@@ -221,12 +220,12 @@ class StockfishTest {
         try {
             final String move = "^([a-h][1-9]){2}$";
             final Pattern movePattern = Pattern.compile(move);
-            Query bestMoveQuery = new Query.Builder(QueryType.Best_Move, START_FEN).setDepth(10).build();
+            Query<String> bestMoveQuery = new Query.Builder<>(QueryTypes.BEST_MOVE, START_FEN).setDepth(10).build();
             String bestMove = stockfish.getBestMove(bestMoveQuery);
             log.info(bestMove);
             assertTrue(movePattern.matcher(bestMove).matches());
 
-            bestMoveQuery = new Query.Builder(QueryType.Best_Move, START_FEN)
+            bestMoveQuery = new Query.Builder<>(QueryTypes.BEST_MOVE, START_FEN)
                     .setDepth(10)
                     .setMovetime(10)
                     .setDifficulty(10)
@@ -235,7 +234,7 @@ class StockfishTest {
             log.info(bestMove);
             assertTrue(movePattern.matcher(bestMove).matches());
 
-            bestMoveQuery = new Query.Builder(QueryType.Best_Move, START_FEN)
+            bestMoveQuery = new Query.Builder<>(QueryTypes.BEST_MOVE, START_FEN)
                     .setDepth(10) // todo
                     .setMovetime(-10)
                     .setDifficulty(-10)
@@ -244,10 +243,10 @@ class StockfishTest {
             log.info(bestMove);
             assertTrue(movePattern.matcher(bestMove).matches());
 
-            Query makeErrorMove = new Query.Builder(QueryType.Make_Move, "8/8/8/8/8/8/8/8 b KQkq - 0 1")
+            Query makeErrorMove = new Query.Builder<>(QueryTypes.MAKE_MOVES, "8/8/8/8/8/8/8/8 b KQkq - 0 1")
                     .build();
 
-            assertThrows(StockfishEngineException.class, () -> stockfish.makeMove(makeErrorMove));
+            assertThrows(StockfishEngineException.class, () -> stockfish.makeMoves(makeErrorMove));
             assertThrows(StockfishEngineException.class, () -> stockfish.readLine(""));
             assertFalse(stockfish.process.isAlive());
             assertEquals(139, stockfish.process.exitValue());
@@ -261,32 +260,32 @@ class StockfishTest {
         try {
             final String legalMovesRegex = "^(([a-h][1-9]){2}\\s)+$";
             final Pattern movePattern = Pattern.compile(legalMovesRegex);
-            Query legalMoveQuery = new Query.Builder(QueryType.Legal_Moves, START_FEN).build();
-            String legalMoves = stockfish.getLegalMoves(legalMoveQuery);
+            Query<Set<String>> legalMoveQuery = new Query.Builder<>(QueryTypes.LEGAL_MOVES, START_FEN).build();
+            Set<String> legalMoves = stockfish.getLegalMoves(legalMoveQuery);
             log.info(legalMoves);
-            assertTrue(movePattern.matcher(legalMoves).matches());
-            legalMoveQuery = new Query.Builder(QueryType.Legal_Moves, START_FEN)
+            assertTrue(movePattern.matcher(String.join(" ", legalMoves) + " ").matches());
+            legalMoveQuery = new Query.Builder<>(QueryTypes.LEGAL_MOVES, START_FEN)
                     .setDepth(20)
                     .setMovetime(20)
                     .setDifficulty(20)
                     .build();
             legalMoves = stockfish.getLegalMoves(legalMoveQuery);
             log.info(legalMoves);
-            assertTrue(movePattern.matcher(legalMoves).matches());
+            assertTrue(movePattern.matcher(String.join(" ", legalMoves) + " ").matches());
 
-            legalMoveQuery = new Query.Builder(QueryType.Legal_Moves, START_FEN)
+            legalMoveQuery = new Query.Builder<>(QueryTypes.LEGAL_MOVES, START_FEN)
                     .setDepth(-10)
                     .setMovetime(-10)
                     .setDifficulty(-10)
                     .build();
             legalMoves = stockfish.getLegalMoves(legalMoveQuery);
             log.info(legalMoves);
-            assertTrue(movePattern.matcher(legalMoves).matches());
+            assertTrue(movePattern.matcher(String.join(" ", legalMoves) + " ").matches());
 
-            Query makeErrorMove = new Query.Builder(QueryType.Make_Move, "8/8/8/8/8/8/8/8 b KQkq - 0 1")
+            Query<String> makeErrorMove = new Query.Builder<>(QueryTypes.MAKE_MOVES, "8/8/8/8/8/8/8/8 b KQkq - 0 1")
                     .build();
 
-            assertThrows(StockfishEngineException.class, () -> stockfish.makeMove(makeErrorMove));
+            assertThrows(StockfishEngineException.class, () -> stockfish.makeMoves(makeErrorMove));
             assertThrows(StockfishEngineException.class, () -> stockfish.readLine(""));
             assertFalse(stockfish.process.isAlive());
             assertEquals(139, stockfish.process.exitValue());
@@ -303,13 +302,13 @@ class StockfishTest {
             assertThrows(StockfishEngineException.class, () -> stockfish.waitForReady());
             assertThrows(StockfishEngineException.class, () -> stockfish.sendCommand(""));
             assertThrows(StockfishEngineException.class,
-                    () -> stockfish.getBestMove(new Query.Builder(QueryType.Best_Move, START_FEN).build()));
+                    () -> stockfish.getBestMove(new Query.Builder<>(QueryTypes.BEST_MOVE, START_FEN).build()));
             assertThrows(StockfishEngineException.class,
-                    () -> stockfish.getCheckers(new Query.Builder(QueryType.Checkers, START_FEN).build()));
+                    () -> stockfish.getCheckers(new Query.Builder<>(QueryTypes.CHECKERS, START_FEN).build()));
             assertThrows(StockfishEngineException.class,
-                    () -> stockfish.getLegalMoves(new Query.Builder(QueryType.Legal_Moves, START_FEN).build()));
+                    () -> stockfish.getLegalMoves(new Query.Builder<>(QueryTypes.LEGAL_MOVES, START_FEN).build()));
             assertThrows(StockfishEngineException.class,
-                    () -> stockfish.makeMove(new Query.Builder(QueryType.Make_Move, START_FEN).build()));
+                    () -> stockfish.makeMoves(new Query.Builder<>(QueryTypes.MAKE_MOVES, START_FEN).build()));
             assertThrows(StockfishEngineException.class, () -> stockfish.readLine(""));
             assertThrows(StockfishEngineException.class, () -> stockfish.readResponse(""));
         } catch (Exception e) {

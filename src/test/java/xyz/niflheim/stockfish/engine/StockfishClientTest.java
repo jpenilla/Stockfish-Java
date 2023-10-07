@@ -1,15 +1,13 @@
 package xyz.niflheim.stockfish.engine;
 
 import java.io.File;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import xyz.niflheim.stockfish.engine.enums.Option;
-import xyz.niflheim.stockfish.engine.enums.Query;
-import xyz.niflheim.stockfish.engine.enums.QueryType;
 import xyz.niflheim.stockfish.engine.enums.Variant;
-import xyz.niflheim.stockfish.exceptions.StockfishEngineException;
 import xyz.niflheim.stockfish.util.OSValidator;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -119,7 +117,7 @@ class StockfishClientTest {
                     false
                 )).toPath())
                 .build();
-            Query query = new Query.Builder(QueryType.Make_Move, START_FEN).setMove("a2a4").build();
+            Query<String> query = new Query.Builder<>(QueryTypes.MAKE_MOVES, START_FEN).setMoves("a2a4").build();
             BlockingQueue<Throwable> exceptions = new ArrayBlockingQueue<>(4);
             Consumer<String> move = l -> {
                 log.info("start executor " + l);
@@ -143,7 +141,7 @@ class StockfishClientTest {
                 throw throwable;
             }
 
-            query = new Query.Builder(QueryType.Best_Move, START_FEN).setDepth(10).build();
+            query = new Query.Builder<>(QueryTypes.BEST_MOVE, START_FEN).setDepth(10).build();
             move = l -> {
                 log.info("start executor " + l);
                 try {
@@ -165,12 +163,12 @@ class StockfishClientTest {
                 throw throwable;
             }
 
-            query = new Query.Builder(QueryType.Legal_Moves, START_FEN).build();
-            move = l -> {
+            final Query<Set<String>> query1 = new Query.Builder<>(QueryTypes.LEGAL_MOVES, START_FEN).build();
+            final Consumer<Set<String>> move1 = l -> {
                 log.info("start executor " + l);
                 try {
                     Pattern movePattern = Pattern.compile("^([a-h][1-8](\\s)?)+$");
-                    assertTrue(movePattern.matcher(l).matches());
+                    assertTrue(movePattern.matcher(String.join(" ", l)).matches());
                     exceptions.put(new TestException());
                     log.info("done executor");
                 } catch (Throwable t) {
@@ -181,7 +179,7 @@ class StockfishClientTest {
                     }
                 }
             };
-            client.submit(query).thenAccept(move);
+            client.submit(query1).thenAccept(move1);
             log.info("done main");
             if (!((throwable = exceptions.take()) instanceof TestException)) {
                 throw throwable;
