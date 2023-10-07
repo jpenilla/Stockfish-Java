@@ -73,13 +73,13 @@ class StockfishTest {
         try {
             String incorrectCommand = "incorrect command";
             stockfish.sendCommand(incorrectCommand);
-            assertArrayEquals(new String[]{GREETING_STOCKFISH, ERROR_STOCKFISH + "'incorrect command'. Type help for more information."},
-                    stockfish.readResponse(ERROR_STOCKFISH).toArray());
+            assertEquals(List.of(ERROR_STOCKFISH + "'incorrect command'. Type help for more information."),
+                    stockfish.readResponse(ERROR_STOCKFISH));
 
             incorrectCommand = "one more incorrect command";
             stockfish.sendCommand(incorrectCommand);
-            assertArrayEquals(new String[]{ERROR_STOCKFISH + "'one more incorrect command'. Type help for more information."},
-                    stockfish.readResponse(ERROR_STOCKFISH).toArray());
+            assertEquals(List.of(ERROR_STOCKFISH + "'one more incorrect command'. Type help for more information."),
+                    stockfish.readResponse(ERROR_STOCKFISH));
         } catch (Exception e) {
             fail(e);
         }

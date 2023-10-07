@@ -6,7 +6,10 @@ plugins {
 
 group 'xyz.niflheim'
 version = "4.0.0-SNAPSHOT"
-mainClassName = 'xyz.niflheim.stockfish.StockfishTester'
+
+application {
+    mainClass.set('xyz.niflheim.stockfish.StockfishTester')
+}
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -33,6 +36,7 @@ dependencies {
     testImplementation 'org.apache.logging.log4j:log4j-api:2.19.0'
     testImplementation 'org.apache.logging.log4j:log4j-core:2.19.0'
     testRuntimeOnly("org.slf4j:slf4j-jdk14:2.0.6")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 jar {
