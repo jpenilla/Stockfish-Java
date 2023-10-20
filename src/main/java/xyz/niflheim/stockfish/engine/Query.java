@@ -26,25 +26,28 @@ public class Query<R> {
     private final int difficulty;
     private final int depth;
     private final long movetime;
+    private final int uciElo;
 
     @SuppressWarnings("WeakerAccess")
-    public Query(QueryType<R> type, String fen, int difficulty, int depth, long movetime) {
+    public Query(QueryType<R> type, String fen, int difficulty, int depth, long movetime, int uciElo) {
         this.type = type;
         this.fen = fen;
         this.moves = null;
         this.difficulty = difficulty;
         this.depth = depth;
         this.movetime = movetime;
+        this.uciElo = uciElo;
     }
 
     @SuppressWarnings("WeakerAccess")
-    public Query(QueryType<R> type, String fen, String moves, int difficulty, int depth, long movetime) {
+    public Query(QueryType<R> type, String fen, String moves, int difficulty, int depth, long movetime, int uciElo) {
         this.type = type;
         this.fen = fen;
         this.moves = moves;
         this.difficulty = difficulty;
         this.depth = depth;
         this.movetime = movetime;
+        this.uciElo = uciElo;
     }
 
     /**
@@ -96,6 +99,10 @@ public class Query<R> {
         return movetime;
     }
 
+    public int getUciElo() {
+        return this.uciElo;
+    }
+
     /**
      * Standard Builder pattern to create {@link Query} instance.
      *
@@ -115,6 +122,7 @@ public class Query<R> {
         private String moves;
         private int difficulty = -1, depth = -1;
         private long movetime = -1;
+        private int uciElo = -1;
 
         /**
          * @param type type of UCI query
@@ -171,6 +179,11 @@ public class Query<R> {
             return this;
         }
 
+        public Builder<R> setUciElo(int uciElo) {
+            this.uciElo = uciElo;
+            return this;
+        }
+
         /**
          * Build Query.
          *
@@ -191,10 +204,10 @@ public class Query<R> {
                 throw new IllegalArgumentException("Incorrect FEN in Query: " + fen);
             }
             if (moves != null) {
-                return new Query<>(type, fen, moves, difficulty, depth, movetime);
+                return new Query<>(type, fen, moves, difficulty, depth, movetime, uciElo);
             }
 
-            return new Query<>(type, fen, difficulty, depth, movetime);
+            return new Query<>(type, fen, difficulty, depth, movetime, uciElo);
         }
     }
 }

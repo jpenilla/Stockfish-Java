@@ -104,7 +104,7 @@ abstract class UCIEngine {
         }
     }
 
-    private void passOption(Option option, String value) {
+    protected void passOption(Option option, String value) {
         sendCommand("setoption name " + option.optionString + " value " + value);
     }
 }

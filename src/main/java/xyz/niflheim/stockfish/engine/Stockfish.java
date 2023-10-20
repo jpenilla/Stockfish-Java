@@ -50,6 +50,10 @@ class Stockfish extends UCIEngine {
         if (query.getDifficulty() >= 0) {
             waitForReady();
             sendCommand("setoption name Skill Level value " + query.getDifficulty());
+        } else if (query.getUciElo() >= 0) {
+            waitForReady();
+            passOption(Option.UCI_LIMITSTRENGTH, "true");
+            passOption(Option.UCI_ELO, String.valueOf(query.getUciElo()));
         }
 
         waitForReady();
