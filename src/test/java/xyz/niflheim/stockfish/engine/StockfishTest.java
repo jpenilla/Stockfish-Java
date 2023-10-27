@@ -73,12 +73,12 @@ class StockfishTest {
             String incorrectCommand = "incorrect command";
             stockfish.sendCommand(incorrectCommand);
             assertEquals(List.of(ERROR_STOCKFISH + "'incorrect command'. Type help for more information."),
-                    stockfish.readResponse(ERROR_STOCKFISH));
+                    stockfish.readUntil(ERROR_STOCKFISH));
 
             incorrectCommand = "one more incorrect command";
             stockfish.sendCommand(incorrectCommand);
             assertEquals(List.of(ERROR_STOCKFISH + "'one more incorrect command'. Type help for more information."),
-                    stockfish.readResponse(ERROR_STOCKFISH));
+                    stockfish.readUntil(ERROR_STOCKFISH));
         } catch (Exception e) {
             fail(e);
         }
@@ -152,15 +152,15 @@ class StockfishTest {
             outputStream.flush();
             setInput(tempFile);
 
-            assertArrayEquals(new String[]{"31"}, stockfish.readResponse("31").toArray());
-            assertArrayEquals(response.toArray(), stockfish.readResponse("32").toArray());
-            assertThrows(StockfishEngineException.class, () -> stockfish.readResponse("36").toArray());
-            assertThrows(StockfishEngineException.class, () -> stockfish.readResponse("31").toArray());
+            assertArrayEquals(new String[]{"31"}, stockfish.readUntil("31").toArray());
+            assertArrayEquals(response.toArray(), stockfish.readUntil("32").toArray());
+            assertThrows(StockfishEngineException.class, () -> stockfish.readUntil("36").toArray());
+            assertThrows(StockfishEngineException.class, () -> stockfish.readUntil("31").toArray());
 
             outputStream.write("31\n".getBytes());
             outputStream.flush();
 
-            assertArrayEquals(new String[]{"31"}, stockfish.readResponse("31").toArray());
+            assertArrayEquals(new String[]{"31"}, stockfish.readUntil("31").toArray());
         } catch (IOException | NoSuchFieldException | IllegalAccessException e) {
 
             fail(e);
@@ -310,7 +310,7 @@ class StockfishTest {
             assertThrows(StockfishEngineException.class,
                     () -> stockfish.makeMoves(new Query.Builder<>(QueryTypes.MAKE_MOVES, START_FEN).build()));
             assertThrows(StockfishEngineException.class, () -> stockfish.readLine(""));
-            assertThrows(StockfishEngineException.class, () -> stockfish.readResponse(""));
+            assertThrows(StockfishEngineException.class, () -> stockfish.readUntil(""));
         } catch (Exception e) {
             fail(e);
         }

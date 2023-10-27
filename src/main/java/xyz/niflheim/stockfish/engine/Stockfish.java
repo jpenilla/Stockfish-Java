@@ -16,7 +16,6 @@ package xyz.niflheim.stockfish.engine;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +90,7 @@ class Stockfish extends UCIEngine {
         sendCommand("go perft 1");
 
         Set<String> legal = new HashSet<>();
-        List<String> response = readResponse("Nodes");
+        List<String> response = readUntil("Nodes");
 
         for (String line : response) {
             if (!line.contains("Nodes") && line.contains(":")) {

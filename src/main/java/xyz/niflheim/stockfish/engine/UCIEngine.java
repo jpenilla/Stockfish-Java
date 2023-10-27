@@ -14,15 +14,18 @@
  */
 package xyz.niflheim.stockfish.engine;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.file.Path;
-import xyz.niflheim.stockfish.engine.enums.Option;
-import xyz.niflheim.stockfish.exceptions.StockfishEngineException;
-import xyz.niflheim.stockfish.exceptions.StockfishInitException;
-
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import xyz.niflheim.stockfish.engine.enums.Option;
+import xyz.niflheim.stockfish.exceptions.StockfishEngineException;
+import xyz.niflheim.stockfish.exceptions.StockfishInitException;
 
 abstract class UCIEngine {
     final BufferedReader input;
@@ -51,7 +54,7 @@ abstract class UCIEngine {
 
     void waitForReady() {
         sendCommand("isready");
-        readResponse("readyok");
+        readUntil("readyok");
     }
 
     void uciNewGame() {
@@ -73,15 +76,11 @@ abstract class UCIEngine {
     }
 
     String readLine(String expected) {
-        try {
-            return input.lines().sequential().filter(l -> l.startsWith(expected)).findFirst()
-                    .orElseThrow(() -> new StockfishEngineException("Can not find expected line: " + expected));
-        } catch (UncheckedIOException e) {
-            throw new StockfishEngineException(e);
-        }
+        final List<String> output = this.readUntil(expected);
+        return output.get(output.size() - 1);
     }
 
-    List<String> readResponse(String expected) {
+    List<String> readUntil(String expected) {
         try {
             List<String> lines = new ArrayList<>();
             String line;
